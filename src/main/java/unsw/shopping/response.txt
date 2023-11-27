@@ -24,5 +24,6 @@ CheckoutSystem is a monolith.
 - Printing receipt has been moved to it's own method to reduce the size of the checkout() function
 - Replace conditional logic of supermarkets with polymorphism
 - Use factory method to implement creation of new supermarket checkouts to increase extensibility
-- Strategy pattern could be used to increase extensibility and flexibility of payment type 
+- Strategy pattern could be used to increase extensibility and flexibility of payment type. 
+- Use factory method to change runtime behaviour of payment type
 - paymentType
