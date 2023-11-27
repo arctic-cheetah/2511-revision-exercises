@@ -1,98 +1,81 @@
 package unsw.shopping;
 
 import java.util.List;
+
+import unsw.shopping.PaymentType.PaymentTypeStrategy;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CheckoutSystem {
-    
+public abstract class CheckoutSystem {
+
     private String supermarket;
+    private PaymentTypeStrategy p = null;
     private int amountPurchased;
 
-    private CheckoutSystem(String supermarket) {
+    protected CheckoutSystem(String supermarket) {
         this.supermarket = supermarket;
     }
 
+    // Apply factory method
     public static CheckoutSystem instance(String supermarket) {
-        return new CheckoutSystem(supermarket);
+        return CheckoutFactory.createCheckoutSystem(supermarket);
     }
+
+    protected abstract void printReceipt(List<Item> items);
+
+    public abstract void scanItems(List<Item> items);
+
+    public abstract String superMarketCard();
 
     public void checkout(List<Item> items, String paymentMethod, int paymentAmount, boolean receipt) {
         // Welcome the user
-        String cardName = null;
-        if (supermarket.equals("Coles")) {
-            cardName = "flybuys";
-        } else if (supermarket.equals("Woolies")) {
-            cardName = "Everyday Rewards";
-        }
-        System.out.println("Welcome! Please scan your first item. If you have a " + cardName + " card, please scan it at any time.");
-
+        String cardName = superMarketCard();
+        System.out.println("Welcome! Please scan your first item. If you have a " + cardName
+                + " card, please scan it at any time.");
 
         // Scan the items
         scanItems(items);
-        
+
         // Take the user's payment
-        if (paymentAmount < amountPurchased) {
+        if (paymentAmount < getAmountPurchased()) {
             System.out.println("Not enough $$$.");
             return;
         }
 
-        if (paymentMethod.equals("cash")) {
-            System.out.println("Paid $" + paymentAmount + " with $" + (paymentAmount - amountPurchased) + " change.");
-        } else {
-            paymentAmount = amountPurchased;
-            System.out.println("Paid $" + paymentAmount + ".");
-        }
+        // Only two payment methods!
+        p = PaymentTypeStrategy.paymentTypeFactory(paymentMethod);
+        paymentType(paymentAmount, getAmountPurchased());
 
         // Print the receipt
         if (receipt) {
-            if (supermarket.equals("Woolies")) {
-                System.out.print("Your purchase: ");
-    
-                for (int i = 0; i < items.size() - 1; i++) {
-                    System.out.print(items.get(i).getName() + ", ($" + items.get(i).getPrice() + "), ");
-                }
-                System.out.println(items.get(items.size() - 1).getName() + " ($" + items.get(items.size() - 1).getPrice() + ").");
-            } else if (supermarket.equals("Coles")) {
-                System.out.println("Today at Coles you purchased the following:");
-                
-                for (Item item : items) {
-                    System.out.println("- " + item.getName() + " : $" + item.getPrice());
-                }
-            } 
+            printReceipt(items);
         }
     }
 
-    public void scanItems(List<Item> items) {
-        // Supermarkets have restrictions on the number of items allowed
-        if (supermarket.equals("Coles")) {
-            if (items.size() > 20) {
-                System.out.println("Too many items.");
-            }
-        } else if (supermarket.equals("Woolies")) {
-            if (items.size() >= 55) {
-                System.out.println("Sorry, that's more than we can handle in a single order!");
-            }
-        }
+    protected void paymentType(int paymentAmount, int amountPurchased) {
+        p.paymentType(paymentAmount, amountPurchased);
+    }
 
-        if (items.size() == 0) {
-            System.out.println("You do not have any items to purchase.");
-            return;
-        }
+    public String getSupermarketName() {
+        return supermarket;
+    }
 
-        for (Item item : items) {
-            amountPurchased += item.getPrice();
-        }
+    public void setAmountPurchased(int amountPurchased) {
+        this.amountPurchased = amountPurchased;
+    }
+
+    public int getAmountPurchased() {
+        return this.amountPurchased;
     }
 
     public static void main(String[] args) {
         List<Item> items = new ArrayList<Item>(Arrays.asList(
-            new Item("Apple", 1),
-            new Item("Orange", 1),
-            new Item("Avocado", 5)
-        ));
+                new Item("Apple", 1),
+                new Item("Orange", 1),
+                new Item("Avocado", 5)));
 
-        CheckoutSystem checkout = new CheckoutSystem("Woolies");
+        CheckoutSystem checkout = instance("Woolies");
         checkout.checkout(items, "cash", 200, true);
     }
 

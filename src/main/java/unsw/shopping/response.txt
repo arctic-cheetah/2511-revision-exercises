@@ -1,0 +1,28 @@
+1) Design/code smells
+
+## Low level
+- checkout() is a very long method 
+- checkout() has too many conditionals
+- checkout(List<Item> items, String paymentMethod, int paymentAmount, boolean receipt) has FOUR parameters! 
+This is too long and a code smell
+- receipt is misleading name. Is should be renamed to isWantReceipt
+- Replace procedural for loops with functional streams
+- Duplicate code for loop over purchases.
+- Bad looping over receipt for woolies because it has index - 1 to print last item in specified format
+- constructor does not need to be private unless using singleton
+- replace magic numbers with constnats
+
+## High level
+CheckoutSystem is a monolith.
+- violates single responsibility as it can delegate some methods to other classes
+- Not open for extension! Because there could be other payment methods such as eg: gift card, rewards points or mixed payments!
+- Item.java could almost be considered a lazy class if doesn't do much other than be an item.
+- Checkout system is handling two supermarkets in one class
+
+2)Justify refactoring:
+
+- Printing receipt has been moved to it's own method to reduce the size of the checkout() function
+- Replace conditional logic of supermarkets with polymorphism
+- Use factory method to implement creation of new supermarket checkouts to increase extensibility
+- Strategy pattern could be used to increase extensibility and flexibility of payment type 
+- paymentType

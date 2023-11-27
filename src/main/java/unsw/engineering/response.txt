@@ -1,0 +1,27 @@
+Code smells:
+
+1) Sales History is a lazy class because it only stores one field and returns a salesSummary(). 
+Not even a constructor is called to initialise the value! So it won't do much.
+This could be used inside SalesPerson instead
+
+2) Refused bequest is present via the getSalesAchieved(), getSalesTarget(), salesAchieved and salesTarget because 
+the engineer doesn't need to use these functions and methods. It should be placed in the salesPerson class.
+
+3) High coupling occurs with the Employee class and it children because there are methods like getBaseSalary, calculateTax or getFirstName()
+which are used by the subclass
+
+4)Duplicate code may be present with the calculateSalary method as both methods in the children look very similar. 
+There are several ways to refactor this:
+-Make the employee an abstract class to allow calculateSalary() be abstract and let the children implement them
+-Refactor calculate salary into a strategy pattern via an abstract class as the calculation of salary for the engineer and salesperson differ
+
+Additionally, calculateTax() also has very similar code, and could be replaced with a strategy pattern 
+
+Supertype cannot be replaced with subtype as there are methods that the supertype doesn't have such as calculateSalary. 
+Ergo liskov violation and this needs
+
+The variable name salesTarget is misleading as it mostly applies to sales people. 
+This should be renamed to a generalised name like quota
+
+Magic numbers are bad
+
