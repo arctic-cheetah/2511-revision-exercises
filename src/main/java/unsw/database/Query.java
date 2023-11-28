@@ -3,7 +3,6 @@ package unsw.database;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public abstract class Query {
     // you are to implement this function.
@@ -20,7 +19,8 @@ public abstract class Query {
 
     }
 
-    public abstract List<Map<String, Object>> evaluate();
+    // Evaluate the row to the Map<String, Object> in the database afterwards
+    public abstract List<Row> evaluate();
 
     public String getOperatorName() {
         return operatorName;

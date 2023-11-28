@@ -19,6 +19,7 @@ public class QueryFactory {
             if (isBooleanOperator(s)) {
                 if (s.equals("AND")) {
                 } else {
+
                 }
             } else if (isComparatorOperator(s)) {
                 // Comparator operators need to obtain the prev and next values to be

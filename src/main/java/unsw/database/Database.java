@@ -2,10 +2,12 @@ package unsw.database;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import unsw.database.Column.ColumnType;
@@ -166,20 +168,67 @@ public class Database {
      * 
      * @param columnName
      * @param value
-     * @pre Assume that we only accept value to be a integer! Comparison of strings does not make sense here!
-     * @post return a List of Map<String,Objects> -> a list of rows that match the condition
-     * 
+     * @pre Assume that we only accept value to be a integer! Comparison of strings
+     *      does not make sense here!
+     * @post return a List of Map<String,Objects> -> a list of rows that match the
+     *       condition
+     * @return a new List of matched rows
      */
-    public List<Map<String, Object>> queryGreaterThan(String columnName, Object value) {
-        // Get the columndata type
-        // Type cast the data?? yes
+    public List<Row> queryGreaterThan(String columnName, Object value) {
         int val = Integer.parseInt(value.toString());
 
-        List<Map<String, Object>> res = records.stream()
+        List<Row> res = records.stream()
                 .filter(e -> (int) e.getValue(columnName) > (val))
-                .map(e -> e.getRow())
                 .collect(Collectors.toList());
-        return res;
+        return new ArrayList<>(res);
+    }
+
+    // Queries database for all records where columnName has a value that .equals()
+    // value.
+    /**
+     * 
+     * @pre columName is a valid value
+     * @return a new List of matched rows
+     */
+    public List<Row> querySimpleToRow(String columnName, Object value) {
+        String val = value.toString();
+
+        List<Row> res = records.stream()
+                .filter(e -> e.getValue(columnName).equals(val))
+                .collect(Collectors.toList());
+        return new ArrayList<>(res);
+    }
+
+    /**
+     * 
+     * @pre columName is a valid value
+     * @return a new List of intersection of rows
+     */
+    public List<Row> andQuery(List<Row> r1, List<Row> r2) {
+
+        // Add the intersection of rows!!!!
+        Set<Row> res = r1.stream()
+                .distinct()
+                .filter(r1::contains)
+                .collect(Collectors.toSet());
+
+        return new ArrayList<>(res);
+    }
+
+    /**
+     * 
+     * @pre columName is a valid value
+     * @return a new List of the union of rows
+     */
+    public List<Row> orQuery(List<Row> r1, List<Row> r2) {
+
+        // Add the union of rows!!!!
+        // Remove dupes
+        Set<Row> s1 = r1.stream().collect(Collectors.toSet());
+        Set<Row> s2 = r2.stream().collect(Collectors.toSet());
+        s2.addAll(s1);
+
+        return new ArrayList<>(s2);
     }
 
     // -------------------------------------------------------------------------

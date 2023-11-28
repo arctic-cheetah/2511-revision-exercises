@@ -8,7 +8,7 @@ public class EqualOperator extends ComparisonOperator {
         super();
         getParam().add(p1);
         getParam().add(p2);
-        setFunc((col, val) -> db.querySimple(col, val));
+        setFunc((col, val) -> db.querySimpleToRow(col, val));
         setOperatorName("=");
     }
 }
