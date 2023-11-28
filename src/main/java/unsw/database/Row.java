@@ -19,12 +19,21 @@ public class Row {
         // Add values to the row
         for (int j = 0; j < header.length; j++) {
             // cast them to the correct type
-            ColumnType t = fields.get(header[j]).getType();
-            if (t.ordinal() == 0) {
-                row.put(header[j], Integer.parseInt(values[j]));
+            // Check if the values are empty
+            setValueRowField(header, values, fields, j);
+        }
+    }
+
+    private void setValueRowField(String[] header, String[] values, Map<String, Column> fields, int j) {
+        ColumnType t = fields.get(header[j]).getType();
+        if (t.ordinal() == 0) {
+            if (values[j].equals("")) {
+                row.put(header[j], 0);
             } else {
-                row.put(header[j], values[j]);
+                row.put(header[j], Integer.parseInt(values[j]));
             }
+        } else {
+            row.put(header[j], values[j]);
         }
     }
 
@@ -39,8 +48,19 @@ public class Row {
      * @return
      */
     //
-    public Object getValue(String columnName, ColumnType t) {
+    public Object getValue(String columnName) {
         return row.get(columnName);
+    }
+
+    /**
+     * 
+     * @pre columName is a valid value
+     * @post Given a column name, get the value in the correct type
+     * @return
+     */
+    //
+    public void updateValue(String columnName, Object columnValue) {
+        row.put(columnName, columnValue);
     }
 
 }

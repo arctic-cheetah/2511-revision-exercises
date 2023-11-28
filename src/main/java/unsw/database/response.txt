@@ -1,4 +1,6 @@
 Assumption:
-Assume that once the database is created, the database structure from that point will remain the same.
-Assume there won't be duplicates in a given row
-Any columns that aren't specified are presumed to have the value "" for text and 0 for marks
+-Assume that once the database is created, the database structure from that point will remain the same.
+-Assume there won't be duplicates in a given row
+-Any columns that aren't specified are presumed to have the value "" for text and 0 for marks
+-Assume won't be given dependencies such that A depends on B and B depends on A.
+

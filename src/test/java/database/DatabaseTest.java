@@ -87,7 +87,7 @@ public class DatabaseTest {
         z2345.put("Lab2", 1);
 
         expectedObjects.put("z1234", z1234);
-        List<Map<String, Object>> tmp = db.querySimple("StudentId", "z1234");
+        // List<Map<String, Object>> tmp = db.querySimple("StudentId", "z1234");
         checkQueryResults("StudentId", expectedObjects, db.querySimple("StudentId", "z1234"));
 
         expectedObjects.clear();

@@ -102,7 +102,7 @@ public class Database {
         ColumnType type = getColumn(columnName);
 
         List<Map<String, Object>> res = multipleRecords.stream()
-                .filter(e -> e.getValue(columnName, type).equals(val))
+                .filter(e -> e.getValue(columnName).equals(val))
                 .map(e -> e.getRow())
                 .collect(Collectors.toList());
         return res;
@@ -110,8 +110,16 @@ public class Database {
     }
 
     public void updateData(String queryColumnName, Object queryValue, String columnName, Object columnValue) {
-        return;
         // TODO: ^^
+        String val = queryValue.toString();
+
+        // Get all the rows that match the query
+        List<Row> res = multipleRecords.stream()
+                .filter(e -> e.getValue(queryColumnName).equals(val))
+                .collect(Collectors.toList());
+
+        res.forEach(e -> e.updateValue(columnName, columnValue));
+        return;
     }
 
     public void addDerivedColumn(String columnName, List<String> dependencies,
