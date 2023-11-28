@@ -4,11 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import unsw.database.Column.ColumnType;
@@ -19,6 +16,7 @@ public class Database {
     // Map<String, Object> oneRow;
     // Multiple rows
     private List<Row> multipleRecords = new ArrayList<>();
+    private List<Column> derivedFields = new ArrayList<>();
 
     public Database(List<Column> columns) {
         columns.forEach(e -> fields.put(e.getName(), e));
@@ -64,12 +62,10 @@ public class Database {
             header[i] = header[i].trim();
 
         // == end of starter code ==
-        // TODO: Finish off the rest of this method
 
         // Create a new Record for each row iterated over
         // WARNING check for null values!
 
-        // TODO refactor law of demeter below
         int i = 0;
         for (String e : rows) {
             String[] values = getValuesCleaned(e);
@@ -99,7 +95,6 @@ public class Database {
         // Get the columndata type
         // Type cast the data?? yes
         String val = value.toString();
-        ColumnType type = getColumn(columnName);
 
         List<Map<String, Object>> res = multipleRecords.stream()
                 .filter(e -> e.getValue(columnName).equals(val))
@@ -110,7 +105,6 @@ public class Database {
     }
 
     public void updateData(String queryColumnName, Object queryValue, String columnName, Object columnValue) {
-        // TODO: ^^
         String val = queryValue.toString();
 
         // Get all the rows that match the query
@@ -122,12 +116,73 @@ public class Database {
         return;
     }
 
+    // Need add a fucking observer pattern as the derived field is ALWAYS updated IF
+    // IT CHANGES!!
+    // Publisher = Rows (checks for any updates)
+    // Observer = Column (derived ones only!) updates the derived field and listens
+    // to each ROW!
     public void addDerivedColumn(String columnName, List<String> dependencies,
             Function<Map<String, Object>, Object> compute) {
+
+        Map<Row, Map<String, Object>> subFields = new LinkedHashMap<>();
+
+        for (Row r : multipleRecords) {
+            Map<String, Object> oneSubField = r.getFields(dependencies);
+            subFields.put(r, oneSubField);
+        }
+
+        // Check the derive column types
+        // They must be all int, or all String
+        ColumnType t = checkAllColumnTypes(dependencies);
+
+        // Add the new field
+        fields.put(columnName, new Column(columnName, t));
+
+        for (Row r : subFields.keySet()) {
+            Map<String, Object> oneSubField = subFields.get(r);
+
+            Object res = compute.apply(oneSubField);
+            res = castValue(res, t);
+            // Update the field in that row
+            r.updateValue(columnName, res);
+
+        }
+
+        // subFields.forEach(e -> {
+        // // Need to update new data type and cast it properly
+        // Object res = compute.apply(e);
+        // res = castValue(res, t);
+
+        // // Go through each row and add the new column
+        // // BUG HERE! IT UPDATES ALL THE COLUMNS
+        // });
         return;
-        // TODO: ^^
     }
 
+    private Object castValue(Object o, ColumnType t) {
+        if (t.ordinal() == 0)
+            return Integer.parseInt(o.toString());
+        return o;
+    }
+
+    private ColumnType checkAllColumnTypes(List<String> dependencies) {
+        for (int i = 0; i < ColumnType.values().length; i++) {
+            boolean foundType = helperFoundType(dependencies, i);
+            if (foundType) {
+                return ColumnType.values()[i];
+            }
+        }
+
+        return null;
+    }
+
+    private boolean helperFoundType(List<String> dependencies, int i) {
+        boolean foundType = dependencies.stream()
+                .map(e -> getColumn(e).ordinal() == i)
+                .reduce((res, curr) -> res && curr)
+                .orElse(false);
+        return foundType;
+    }
     /*
      * For the following functions you'll want to change them a very tiny amount,
      * you will probably

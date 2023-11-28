@@ -4,3 +4,9 @@ Assumption:
 -Any columns that aren't specified are presumed to have the value "" for text and 0 for marks
 -Assume won't be given dependencies such that A depends on B and B depends on A.
 
+Question d) 
+Use observer pattern to ensure all fields with a derived column are updated.
+
+A listener should be attached to every row, to the derived columns.
+
+This way if a change is made to a row, that field in the particular row can automatically update their value

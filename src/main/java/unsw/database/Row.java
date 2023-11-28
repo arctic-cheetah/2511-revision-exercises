@@ -1,7 +1,10 @@
 package unsw.database;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import unsw.database.Column.ColumnType;
 
@@ -9,6 +12,7 @@ public class Row {
     // String is a the column(field) name
     // Object is the value
     private Map<String, Object> row;
+    private List<Column> observers = new ArrayList<>();
 
     public Row(String[] header, String[] values, Map<String, Column> fields) {
         row = new LinkedHashMap<>();
@@ -41,6 +45,16 @@ public class Row {
         return row;
     }
 
+    public void addDerviedField(String columnName, List<String> dependencies,
+            Function<Map<String, Object>, Object> compute) {
+
+        Map<String, Object> oneSubField = getFields(dependencies);
+
+        Object res = compute.apply(oneSubField);
+        // res = castValue(res, t);
+        updateValue(columnName, res);
+    }
+
     /**
      * 
      * @pre columName is a valid value
@@ -54,13 +68,26 @@ public class Row {
 
     /**
      * 
-     * @pre columName is a valid value
-     * @post Given a column name, get the value in the correct type
+     * @pre columName is a valid value and columnValue is also valid
+     * @post update the value
      * @return
      */
     //
     public void updateValue(String columnName, Object columnValue) {
         row.put(columnName, columnValue);
+    }
+
+    /**
+     * 
+     * @pre List of dependent columns are valid
+     * @post Return a new subfield
+     * @return
+     */
+    //
+    public Map<String, Object> getFields(List<String> dependencies) {
+        Map<String, Object> subField = new LinkedHashMap<>();
+        dependencies.forEach(e -> subField.put(e, row.get(e)));
+        return subField;
     }
 
 }
