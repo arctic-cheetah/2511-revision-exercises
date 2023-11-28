@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import unsw.database.Column.ColumnType;
+import unsw.database.query.BooleanOperator;
+import unsw.database.query.QueryFactory;
 
 public class Database {
     private Map<String, Column> fields = new LinkedHashMap<>();
@@ -16,7 +18,7 @@ public class Database {
     // One Row
     // Map<String, Object> oneRow;
     // Multiple rows
-    private List<Row> multipleRecords = new ArrayList<>();
+    private List<Row> records = new ArrayList<>();
 
     public Database(List<Column> columns) {
         new Fields();
@@ -35,7 +37,13 @@ public class Database {
     public Query parseQuery(String query) {
         // wrapped in an array list to allow us to remove tokens from the "stream"
         // you don't have to change this function.
-        return parseOrExpr(new ArrayList<>(Arrays.asList(query.split("\\s"))));
+
+        // Split the input
+        List<String> token = new ArrayList<>(Arrays.asList(query.split("\\s")));
+        Query q = null;
+        q = QueryFactory.queryFactory(token, this, q);
+        // Create a new queries via a tree that will operate
+        return parseOrExpr(token);
     }
 
     // Queries database using already compiled Query
@@ -71,7 +79,7 @@ public class Database {
         for (String e : rows) {
             String[] values = getValuesCleaned(e);
             Row r = new Row(header, values, fields);
-            multipleRecords.add(r);
+            records.add(r);
             i++;
         }
 
@@ -97,19 +105,18 @@ public class Database {
         // Type cast the data?? yes
         String val = value.toString();
 
-        List<Map<String, Object>> res = multipleRecords.stream()
+        List<Map<String, Object>> res = records.stream()
                 .filter(e -> e.getValue(columnName).equals(val))
                 .map(e -> e.getRow())
                 .collect(Collectors.toList());
         return res;
-
     }
 
     public void updateData(String queryColumnName, Object queryValue, String columnName, Object columnValue) {
         String val = queryValue.toString();
 
         // Get all the rows that match the query
-        List<Row> res = multipleRecords.stream()
+        List<Row> res = records.stream()
                 .filter(e -> e.getValue(queryColumnName).equals(val))
                 .collect(Collectors.toList());
 
@@ -130,16 +137,10 @@ public class Database {
         ColumnType t = checkAllColumnTypes(dependencies);
         Column col = new Column(columnName, t, dependencies, compute);
         fields.put(columnName, col);
-        multipleRecords.forEach(e -> e.addDerviedField(columnName, dependencies, compute, col));
+        records.forEach(e -> e.addDerviedField(columnName, dependencies, compute, col));
 
         return;
 
-    }
-
-    private Object castValue(Object o, ColumnType t) {
-        if (t.ordinal() == 0)
-            return Integer.parseInt(o.toString());
-        return o;
     }
 
     private ColumnType checkAllColumnTypes(List<String> dependencies) {
@@ -160,6 +161,30 @@ public class Database {
                 .orElse(false);
         return foundType;
     }
+
+    /**
+     * 
+     * @param columnName
+     * @param value
+     * @pre Assume that we only accept value to be a integer! Comparison of strings does not make sense here!
+     * @post return a List of Map<String,Objects> -> a list of rows that match the condition
+     * 
+     */
+    public List<Map<String, Object>> queryGreaterThan(String columnName, Object value) {
+        // Get the columndata type
+        // Type cast the data?? yes
+        int val = Integer.parseInt(value.toString());
+
+        List<Map<String, Object>> res = records.stream()
+                .filter(e -> (int) e.getValue(columnName) > (val))
+                .map(e -> e.getRow())
+                .collect(Collectors.toList());
+        return res;
+    }
+
+    // -------------------------------------------------------------------------
+    // FUCK YOU IF YOU WANT ME TO UNDERSTAND YOUR SHIT BELOW IN EXAM TIME
+    // I DO THINGS MY WAY YOU MOTHERFUCKING TWAT
     /*
      * For the following functions you'll want to change them a very tiny amount,
      * you will probably
@@ -188,7 +213,7 @@ public class Database {
         try {
             // Integer constant
             int result = Integer.parseInt(tok);
-            return new Query();
+            // return new Query();
             // TODO: ^^
         } catch (NumberFormatException e) {
             // (ignore)
@@ -200,7 +225,7 @@ public class Database {
         if (agg.charAt(agg.length() - 1) == '\'') {
             // A string constant.
             String result = agg;
-            return new Query();
+            // return new Query();
             // TODO: ^^
         }
 
@@ -215,7 +240,9 @@ public class Database {
             if (next.charAt(next.length() - 1) == '\'') {
                 // A string constant.
                 String result = agg + " " + next.substring(0, next.length() - 1);
-                return new Query();
+                // return new Query();
+                return new BooleanOperator();
+
             } else {
                 agg += " " + next;
             }
@@ -237,7 +264,9 @@ public class Database {
         // what to compare it to i.e. 'A' or 2
         Query rhs = parseAtom(tokens);
 
-        return new Query();
+        // return new Query();
+        return new BooleanOperator();
+
         // TODO: ^^
     }
 
@@ -257,7 +286,9 @@ public class Database {
 
             // you should do something with the results of above...
             // something like X x = new X(lhs, rhs);
-            return new Query();
+            // return new Query();
+            return new BooleanOperator();
+
             // TODO:^
         } else {
             return lhs;
@@ -280,7 +311,9 @@ public class Database {
 
             // you should do something with the results of above...
             // something like X x = new X(lhs, rhs);
-            return new Query();
+            // return new Query();
+            return new BooleanOperator();
+
             // TODO:^
         } else {
             return lhs;
