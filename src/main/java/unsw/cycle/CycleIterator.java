@@ -8,7 +8,6 @@ public class CycleIterator<E> implements Iterator<E> {
     private List<E> data = null;
     private int curr = 0;
 
-    // TODO we may need to cycle through the elements
     public CycleIterator(List<E> data) {
         this.data = data;
     }

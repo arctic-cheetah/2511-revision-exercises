@@ -1,6 +1,5 @@
 package database;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +20,7 @@ public class DatabaseTest {
 
     // getColumn and constructor
     @Test
-    public static void SimpleTestPartA() {
+    public void SimpleTestPartA() {
         System.err.println("== Starting Test A ==");
 
         Database db = new Database(Arrays.asList(
@@ -47,7 +46,7 @@ public class DatabaseTest {
 
     // Ingest data
     @Test
-    public static void SimpleTestPartB() {
+    public void SimpleTestPartB() {
         System.err.println("== Starting Test B ==");
 
         Database db = new Database(Arrays.asList(
@@ -60,13 +59,13 @@ public class DatabaseTest {
 
         // We recommend writing your tests like this rather than using raw files.
         db.ingest(
-            // header
-            "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
-            // first row
-            "z1234    |tue15a  |elderberry |35        |1   |2\n" +
-            // second row
-            "z2345    |tue15a  |pineapple  |25        |2   |1"
-            // make sure you don't end the last line with a `\n`
+                // header
+                "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
+                // first row
+                        "z1234    |tue15a  |elderberry |35        |1   |2\n" +
+                        // second row
+                        "z2345    |tue15a  |pineapple  |25        |2   |1"
+        // make sure you don't end the last line with a `\n`
         );
 
         Map<String, Map<String, Object>> expectedObjects = new HashMap<>();
@@ -88,6 +87,7 @@ public class DatabaseTest {
         z2345.put("Lab2", 1);
 
         expectedObjects.put("z1234", z1234);
+        List<Map<String, Object>> tmp = db.querySimple("StudentId", "z1234");
         checkQueryResults("StudentId", expectedObjects, db.querySimple("StudentId", "z1234"));
 
         expectedObjects.clear();
@@ -104,7 +104,7 @@ public class DatabaseTest {
 
     // Updating Data
     @Test
-    public static void SimpleTestPartC() {
+    public void SimpleTestPartC() {
         System.err.println("== Starting Test C ==");
 
         Database db = new Database(Arrays.asList(
@@ -117,13 +117,13 @@ public class DatabaseTest {
 
         // We recommend writing your tests like this rather than using raw files.
         db.ingest(
-            // header
-            "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
-            // first row
-            "z1234    |tue15a  |elderberry |35        |    |2\n" +
-            // first row
-            "z2345    |tue15a  |pineapple  |40        |2   |2"
-            // make sure you don't end the last line with a `\n`
+                // header
+                "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
+                // first row
+                        "z1234    |tue15a  |elderberry |35        |    |2\n" +
+                        // first row
+                        "z2345    |tue15a  |pineapple  |40        |2   |2"
+        // make sure you don't end the last line with a `\n`
         );
 
         Map<String, Map<String, Object>> expectedObjects = new HashMap<>();
@@ -165,29 +165,31 @@ public class DatabaseTest {
 
     // Derived Columns
     @Test
-    public static void SimpleTestPartD() {
+    public void SimpleTestPartD() {
         System.err.println("== Starting Test D ==");
 
         Database db = new Database(Arrays.asList(
-            new Column("StudentId", ColumnType.TEXT),
-            new Column("Tutorial", ColumnType.TEXT),
-            new Column("GroupSuffix", ColumnType.TEXT),
-            new Column("Assignment", ColumnType.MARK),
-            new Column("Lab1", ColumnType.MARK),
-            new Column("Lab2", ColumnType.MARK)));
+                new Column("StudentId", ColumnType.TEXT),
+                new Column("Tutorial", ColumnType.TEXT),
+                new Column("GroupSuffix", ColumnType.TEXT),
+                new Column("Assignment", ColumnType.MARK),
+                new Column("Lab1", ColumnType.MARK),
+                new Column("Lab2", ColumnType.MARK)));
 
-        db.addDerivedColumn("TotalMark", Arrays.asList("Assignment", "Lab1", "Lab2"), (cols) -> (int)cols.get("Lab1") + (int)cols.get("Lab2") + (int)cols.get("Assignment"));
+        db.addDerivedColumn("TotalMark", Arrays.asList("Assignment", "Lab1", "Lab2"),
+                (cols) -> (int) cols.get("Lab1") + (int) cols.get("Lab2") + (int) cols.get("Assignment"));
 
         // We recommend writing your tests like this rather than using raw files.
         db.ingest(
-            // header
-            "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
-            "z1234    |tue15a  |elderberry |35        |1   |2\n" +
-            "z2345    |tue15a  |pineapple  |25        |2   |1"
-            // make sure you don't end the last line with a `\n`
+                // header
+                "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
+                        "z1234    |tue15a  |elderberry |35        |1   |2\n" +
+                        "z2345    |tue15a  |pineapple  |25        |2   |1"
+        // make sure you don't end the last line with a `\n`
         );
 
-        db.addDerivedColumn("ProjectGroup", Arrays.asList("Tutorial", "GroupSuffix"), (cols) -> cols.get("Tutorial") + "_" + cols.get("GroupSuffix"));
+        db.addDerivedColumn("ProjectGroup", Arrays.asList("Tutorial", "GroupSuffix"),
+                (cols) -> cols.get("Tutorial") + "_" + cols.get("GroupSuffix"));
 
         Map<String, Map<String, Object>> expectedObjects = new HashMap<>();
 
@@ -242,7 +244,7 @@ public class DatabaseTest {
 
     // Complex Queries
     @Test
-    public static void SimpleTestPartE() {
+    public void SimpleTestPartE() {
         System.err.println("== Starting Test E ==");
 
         Database db = new Database(Arrays.asList(
@@ -255,13 +257,13 @@ public class DatabaseTest {
 
         // I recommend writing your tests like this rather than using raw files.
         db.ingest(
-            // header
-            "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
-            "z1234    |tue15a  |elderberry |35        |1   |2\n" +
-            "z2345    |tue15a  |pineapple  |25        |2   |1\n" +
-            "z3456    |wed18a  |elderberry |39        |0   |2\n" +
-            "z4567    |tue15a  |pineapple  |17        |2   |2"
-            // make sure you don't end the last line with a `\n`
+                // header
+                "StudentId|Tutorial|GroupSuffix|Assignment|Lab1|Lab2\n" +
+                        "z1234    |tue15a  |elderberry |35        |1   |2\n" +
+                        "z2345    |tue15a  |pineapple  |25        |2   |1\n" +
+                        "z3456    |wed18a  |elderberry |39        |0   |2\n" +
+                        "z4567    |tue15a  |pineapple  |17        |2   |2"
+        // make sure you don't end the last line with a `\n`
         );
 
         Map<String, Map<String, Object>> expectedObjects = new HashMap<>();
@@ -348,56 +350,65 @@ public class DatabaseTest {
 
     /* == Helpers == */
 
-    // this is a pretty long function so I wouldn't waste time reading through how it works,
+    // this is a pretty long function so I wouldn't waste time reading through how
+    // it works,
     // the errors/exceptions are detailed enough that they should help by itself.
-    public static void checkQueryResults(String idField, Map<String, Map<String, Object>> expected, List<Map<String, Object>> actual) {
+    public void checkQueryResults(String idField, Map<String, Map<String, Object>> expected,
+            List<Map<String, Object>> actual) {
         Set<Object> seenEntities = new HashSet<>();
 
-        for (Map<String,Object> row : actual) {
+        for (Map<String, Object> row : actual) {
             if (row.containsKey(idField)) {
                 if (expected.containsKey(row.get(idField))) {
                     seenEntities.add(row.get(idField));
                     Map<String, Object> expectedRow = expected.get(row.get(idField));
                     if (!row.keySet().equals(expectedRow.keySet())) {
-                        throw new RuntimeException("There were extra unexpected columns... we expected the following columns (comma separated); [" +
-                        expectedRow.keySet().stream().collect(Collectors.joining(",")) +
-                            "] but we got [" + row.keySet().stream().collect(Collectors.joining(",")) + "]"
-                        );
+                        throw new RuntimeException(
+                                "There were extra unexpected columns... we expected the following columns (comma separated); ["
+                                        +
+                                        expectedRow.keySet().stream().collect(Collectors.joining(",")) +
+                                        "] but we got [" + row.keySet().stream().collect(Collectors.joining(","))
+                                        + "]");
                     }
 
-                    for (Map.Entry<String,Object> column : row.entrySet()) {
+                    for (Map.Entry<String, Object> column : row.entrySet()) {
                         // confirm values
                         if (!Objects.equals(expectedRow.get(column.getKey()), column.getValue())) {
-                            throw new RuntimeException("Column " + column.getKey() + " did not match for record " + idField + " = " + row.get(idField) +
-                            " we were expecting the value " + column.getKey() + " = " + expectedRow.get(column.getKey()) + 
-                            " but we got " + column.getKey() + " = " + column.getValue());
+                            throw new RuntimeException("Column " + column.getKey() + " did not match for record "
+                                    + idField + " = " + row.get(idField) +
+                                    " we were expecting the value " + column.getKey() + " = "
+                                    + expectedRow.get(column.getKey()) +
+                                    " but we got " + column.getKey() + " = " + column.getValue());
                         }
                     }
                 } else {
-                    throw new RuntimeException("Unexpected row, we weren't expecting a row where " + idField + " = " + row.get(idField));
+                    throw new RuntimeException(
+                            "Unexpected row, we weren't expecting a row where " + idField + " = " + row.get(idField));
                 }
             } else {
-                throw new RuntimeException("We were expecting all rows to have a column called " + idField + " but it seems that the row containing these values did not; " +
-                    row.entrySet().stream().map(x -> x.getKey() + " = " + x.getValue()).collect(Collectors.joining(", "))
-                );
+                throw new RuntimeException("We were expecting all rows to have a column called " + idField
+                        + " but it seems that the row containing these values did not; " +
+                        row.entrySet().stream().map(x -> x.getKey() + " = " + x.getValue())
+                                .collect(Collectors.joining(", ")));
             }
         }
-        
+
         // confirm we didn't miss anything
         if (seenEntities.size() != expected.size()) {
             throw new RuntimeException(
-                "We were expecting " + expected.size() + " rows but we got " + seenEntities.size() + " instead... " +
-                "the rows that were missing had the following values for the column " + idField + " [" +
-                expected.entrySet().stream()
-                    .filter(x -> !seenEntities.contains(x.getKey()))
-                    .map(x -> x.getKey())
-                    .collect(Collectors.joining(", ")) +
-                "]"
-            );
+                    "We were expecting " + expected.size() + " rows but we got " + seenEntities.size() + " instead... "
+                            +
+                            "the rows that were missing had the following values for the column " + idField + " [" +
+                            expected.entrySet().stream()
+                                    .filter(x -> !seenEntities.contains(x.getKey()))
+                                    .map(x -> x.getKey())
+                                    .collect(Collectors.joining(", "))
+                            +
+                            "]");
         }
     }
 
-    public static void checkColumn(Database db, String columnName, ColumnType expectedType) {
+    public void checkColumn(Database db, String columnName, ColumnType expectedType) {
         ColumnType actualType = db.getColumn(columnName);
         if (!Objects.equals(actualType, expectedType)) {
             throw new RuntimeException("Test Failed... we expected " + expectedType.toString() + " but got "

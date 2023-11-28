@@ -4,17 +4,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import unsw.database.Column.ColumnType;
 
 public class Database {
+    private Map<String, Column> fields = new LinkedHashMap<>();
+    // One Row
+    // Map<String, Object> oneRow;
+    // Multiple rows
+    private List<Row> multipleRecords = new ArrayList<>();
+
     public Database(List<Column> columns) {
-        return;
-        // TODO: ^^
+        columns.forEach(e -> fields.put(e.getName(), e));
     }
 
-    // Query is an empty class that you can do whatever you want to (add subclasses/functions/whatever)
+    // Gets the column type for the specified column name
+    public ColumnType getColumn(String name) {
+        Column res = fields.get(name);
+        return res == null ? null : res.getType();
+    }
+
+    // Query is an empty class that you can do whatever you want to (add
+    // subclasses/functions/whatever)
     // the only requirement is that the name remains the same.
     public Query parseQuery(String query) {
         // wrapped in an array list to allow us to remove tokens from the "stream"
@@ -23,15 +40,10 @@ public class Database {
     }
 
     // Queries database using already compiled Query
-    // If a record matches twice you can add it twice (i.e. you don't have to handle distinctly)
+    // If a record matches twice you can add it twice (i.e. you don't have to handle
+    // distinctly)
     public List<Map<String, Object>> queryComplex(Query query) {
         return new ArrayList<Map<String, Object>>();
-        // TODO: ^^
-    }
-
-    // Gets the column type for the specified column name
-    public ColumnType getColumn(String name) {
-        return null;
         // TODO: ^^
     }
 
@@ -42,23 +54,59 @@ public class Database {
 
         // grab the first row for schema
         // NOTE: When splitting on certain characters in java you need to escape them
-        //       (this is due to split actually taking in a regex).
+        // (this is due to split actually taking in a regex).
         // So if you need to split on `|` you'll want to do `\\|` instead as per below.
         // (you shouldn't need to split on anything else other than newlines as above)
         String[] header = rows.remove(0).split("\\|");
 
         // trim schema to remove surrounding whitespace
-        for (int i = 0; i < header.length; i++) header[i] = header[i].trim();
+        for (int i = 0; i < header.length; i++)
+            header[i] = header[i].trim();
 
         // == end of starter code ==
         // TODO: Finish off the rest of this method
-        return 0;
+
+        // Create a new Record for each row iterated over
+        // WARNING check for null values!
+
+        // TODO refactor law of demeter below
+        int i = 0;
+        for (String e : rows) {
+            String[] values = getValuesCleaned(e);
+            Row r = new Row(header, values, fields);
+            multipleRecords.add(r);
+            i++;
+        }
+
+        return i;
     }
 
-    // Queries database for all records where columnName has a value that .equals() value.
+    private String[] getValuesCleaned(String e) {
+        String[] values = e.split("\\|");
+        for (int i = 0; i < values.length; i++)
+            values[i] = values[i].trim();
+        return values;
+    }
+
+    // Queries database for all records where columnName has a value that .equals()
+    // value.
+    /**
+     * 
+     * @pre columName is a valid value
+     * @return
+     */
     public List<Map<String, Object>> querySimple(String columnName, Object value) {
-        return new ArrayList<Map<String, Object>>();
-        // TODO: ^^
+        // Get the columndata type
+        // Type cast the data?? yes
+        String val = value.toString();
+        ColumnType type = getColumn(columnName);
+
+        List<Map<String, Object>> res = multipleRecords.stream()
+                .filter(e -> e.getValue(columnName, type).equals(val))
+                .map(e -> e.getRow())
+                .collect(Collectors.toList());
+        return res;
+
     }
 
     public void updateData(String queryColumnName, Object queryValue, String columnName, Object columnValue) {
@@ -66,22 +114,29 @@ public class Database {
         // TODO: ^^
     }
 
-    public void addDerivedColumn(String columnName, List<String> dependencies, Function<Map<String, Object>, Object> compute) {
+    public void addDerivedColumn(String columnName, List<String> dependencies,
+            Function<Map<String, Object>, Object> compute) {
         return;
         // TODO: ^^
     }
 
     /*
-        For the following functions you'll want to change them a very tiny amount, you will probably
-        be changing the return types and making it so it constructs objects in this said recursive manner.
-
-        To make it simple, the query language presumes all input is valid and doesn't support `()` to decide precedence.
-
-        As a very rough explanation of how this works (it's an exam, you do *NOT* need to understand the specifics just
-        focus on changing the return new Query()'s to what you need to construct the query object).
-
-        If you are REALLY struggling look at the practice exam, how did you do the query structure for business rules there?
-        How, can you apply that structure to this question in a similar fashion...
+     * For the following functions you'll want to change them a very tiny amount,
+     * you will probably
+     * be changing the return types and making it so it constructs objects in this
+     * said recursive manner.
+     * 
+     * To make it simple, the query language presumes all input is valid and doesn't
+     * support `()` to decide precedence.
+     * 
+     * As a very rough explanation of how this works (it's an exam, you do *NOT*
+     * need to understand the specifics just
+     * focus on changing the return new Query()'s to what you need to construct the
+     * query object).
+     * 
+     * If you are REALLY struggling look at the practice exam, how did you do the
+     * query structure for business rules there?
+     * How, can you apply that structure to this question in a similar fashion...
      */
 
     public Query parseAtom(List<String> tokens) {
@@ -109,8 +164,10 @@ public class Database {
             // TODO: ^^
         }
 
-        // this is where the text has spaces i.e. 'a b c', what we do is recombine the tokens
-        // until we find one with a ' terminator, this isn't a great strategy, but it's simple!
+        // this is where the text has spaces i.e. 'a b c', what we do is recombine the
+        // tokens
+        // until we find one with a ' terminator, this isn't a great strategy, but it's
+        // simple!
         // this presumes we'll terminate, again we always presume valid input!
         while (true) {
             String next = tokens.remove(0);

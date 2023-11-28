@@ -2,8 +2,8 @@ package unsw.database;
 
 public class Column {
     public enum ColumnType {
-        MARK,
-        TEXT;
+        MARK, // Int
+        TEXT; // string
     }
 
     private String name;
