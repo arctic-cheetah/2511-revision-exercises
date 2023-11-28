@@ -12,13 +12,14 @@ import unsw.database.Column.ColumnType;
 
 public class Database {
     private Map<String, Column> fields = new LinkedHashMap<>();
+
     // One Row
     // Map<String, Object> oneRow;
     // Multiple rows
     private List<Row> multipleRecords = new ArrayList<>();
-    private List<Column> derivedFields = new ArrayList<>();
 
     public Database(List<Column> columns) {
+        new Fields();
         columns.forEach(e -> fields.put(e.getName(), e));
     }
 
@@ -124,39 +125,15 @@ public class Database {
     public void addDerivedColumn(String columnName, List<String> dependencies,
             Function<Map<String, Object>, Object> compute) {
 
-        Map<Row, Map<String, Object>> subFields = new LinkedHashMap<>();
-
-        for (Row r : multipleRecords) {
-            Map<String, Object> oneSubField = r.getFields(dependencies);
-            subFields.put(r, oneSubField);
-        }
-
         // Check the derive column types
         // They must be all int, or all String
         ColumnType t = checkAllColumnTypes(dependencies);
+        Column col = new Column(columnName, t, dependencies, compute);
+        fields.put(columnName, col);
+        multipleRecords.forEach(e -> e.addDerviedField(columnName, dependencies, compute, col));
 
-        // Add the new field
-        fields.put(columnName, new Column(columnName, t));
-
-        for (Row r : subFields.keySet()) {
-            Map<String, Object> oneSubField = subFields.get(r);
-
-            Object res = compute.apply(oneSubField);
-            res = castValue(res, t);
-            // Update the field in that row
-            r.updateValue(columnName, res);
-
-        }
-
-        // subFields.forEach(e -> {
-        // // Need to update new data type and cast it properly
-        // Object res = compute.apply(e);
-        // res = castValue(res, t);
-
-        // // Go through each row and add the new column
-        // // BUG HERE! IT UPDATES ALL THE COLUMNS
-        // });
         return;
+
     }
 
     private Object castValue(Object o, ColumnType t) {

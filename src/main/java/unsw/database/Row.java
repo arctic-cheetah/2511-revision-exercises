@@ -17,6 +17,8 @@ public class Row {
     public Row(String[] header, String[] values, Map<String, Column> fields) {
         row = new LinkedHashMap<>();
         initRow(header, values, fields);
+        // TODO: Update derived fields HERE! and add them to the row!
+        updateDerivedFieldHelper(fields);
     }
 
     public void initRow(String[] header, String[] values, Map<String, Column> fields) {
@@ -30,6 +32,7 @@ public class Row {
 
     private void setValueRowField(String[] header, String[] values, Map<String, Column> fields, int j) {
         ColumnType t = fields.get(header[j]).getType();
+        // Check the data type when adding the field
         if (t.ordinal() == 0) {
             if (values[j].equals("")) {
                 row.put(header[j], 0);
@@ -45,14 +48,34 @@ public class Row {
         return row;
     }
 
-    public void addDerviedField(String columnName, List<String> dependencies,
-            Function<Map<String, Object>, Object> compute) {
-
-        Map<String, Object> oneSubField = getFields(dependencies);
-
+    public void addDerviedField(String colName, List<String> depends, Function<Map<String, Object>, Object> compute,
+            Column col) {
+        Map<String, Object> oneSubField = getFields(depends);
         Object res = compute.apply(oneSubField);
-        // res = castValue(res, t);
-        updateValue(columnName, res);
+        updateValue(colName, res);
+
+        // The the column to the observer
+        observers.add(col);
+    }
+
+    // Update the derived field in the column when the column is added
+    public void updateDerivedFieldHelper(Map<String, Column> fields) {
+        List<Column> update = new ArrayList<>(fields.values());
+        update.forEach(e -> {
+            if (e.isDerived()) {
+                observers.add(e);
+                row.put(e.getName(), e.computeDerived(this));
+            }
+        });
+    }
+
+    // Update the derived field in the column
+    public void updateDerivedFieldHelper(String colName) {
+        Column col = observers.stream().filter(e -> e.depedencyMatch(colName)).findFirst().orElse(null);
+        if (col != null) {
+            Object res = col.computeDerived(this);
+            row.put(col.getName(), res);
+        }
     }
 
     /**
@@ -75,6 +98,7 @@ public class Row {
     //
     public void updateValue(String columnName, Object columnValue) {
         row.put(columnName, columnValue);
+        updateDerivedFieldHelper(columnName);
     }
 
     /**

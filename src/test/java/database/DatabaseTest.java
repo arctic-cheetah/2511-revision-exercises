@@ -176,6 +176,8 @@ public class DatabaseTest {
                 new Column("Lab1", ColumnType.MARK),
                 new Column("Lab2", ColumnType.MARK)));
 
+        db.addDerivedColumn("TotalMark", Arrays.asList("Assignment", "Lab1", "Lab2"),
+                (cols) -> (int) cols.get("Lab1") + (int) cols.get("Lab2") + (int) cols.get("Assignment"));
         // We recommend writing your tests like this rather than using raw files.
         db.ingest(
                 // header
@@ -187,8 +189,6 @@ public class DatabaseTest {
 
         db.addDerivedColumn("ProjectGroup", Arrays.asList("Tutorial", "GroupSuffix"),
                 (cols) -> cols.get("Tutorial") + "_" + cols.get("GroupSuffix"));
-        db.addDerivedColumn("TotalMark", Arrays.asList("Assignment", "Lab1", "Lab2"),
-                (cols) -> (int) cols.get("Lab1") + (int) cols.get("Lab2") + (int) cols.get("Assignment"));
 
         Map<String, Map<String, Object>> expectedObjects = new HashMap<>();
 
