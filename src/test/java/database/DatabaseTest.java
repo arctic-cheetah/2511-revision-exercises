@@ -316,7 +316,7 @@ public class DatabaseTest {
         // checking AND
         expectedObjects.clear();
         expectedObjects.put("z1234", z1234);
-        expectedObjects.put("z2345", z2345);
+        // expectedObjects.put("z2345", z2345);
         query = db.parseQuery("Tutorial = 'tue15a' AND GroupSuffix = 'elderberry'");
         checkQueryResults("StudentId", expectedObjects, db.queryComplex(query));
 

@@ -42,18 +42,19 @@ public class Database {
 
         // Split the input
         List<String> token = new ArrayList<>(Arrays.asList(query.split("\\s")));
+
         Query q = null;
         q = QueryFactory.queryFactory(token, this, q);
         // Create a new queries via a tree that will operate
-        return parseOrExpr(token);
+        return q;
     }
 
     // Queries database using already compiled Query
     // If a record matches twice you can add it twice (i.e. you don't have to handle
     // distinctly)
     public List<Map<String, Object>> queryComplex(Query query) {
-        return new ArrayList<Map<String, Object>>();
-        // TODO: ^^
+        List<Map<String, Object>> q = query.evaluate().stream().map(e -> e.getRow()).collect(Collectors.toList());
+        return q;
     }
 
     // should return number of new records inserted
@@ -191,11 +192,24 @@ public class Database {
      * @return a new List of matched rows
      */
     public List<Row> querySimpleToRow(String columnName, Object value) {
-        String val = value.toString();
+        // Remove any '' for strings
+        List<Row> res;
+        ColumnType t = getColumn(columnName);
 
-        List<Row> res = records.stream()
-                .filter(e -> e.getValue(columnName).equals(val))
-                .collect(Collectors.toList());
+        if (t.ordinal() == 1) {
+            final String val = ((String) value).replaceAll("'", "");
+            res = records.stream()
+                    .filter(e -> e.getValue(columnName).equals(val))
+                    .collect(Collectors.toList());
+
+        } else {
+            // Int
+            final int val = (Integer.parseInt(value.toString()));
+            res = records.stream()
+                    .filter(e -> e.getValue(columnName).equals(val))
+                    .collect(Collectors.toList());
+        }
+
         return new ArrayList<>(res);
     }
 
@@ -209,7 +223,7 @@ public class Database {
         // Add the intersection of rows!!!!
         Set<Row> res = r1.stream()
                 .distinct()
-                .filter(r1::contains)
+                .filter(r2::contains)
                 .collect(Collectors.toSet());
 
         return new ArrayList<>(res);

@@ -20,6 +20,7 @@ where AND has higher precedence than OR.
 
 
 ## Notes:
+Always a perfect binary tree
 Parse the input into simpler input
 Use Postorder traversal of query tree to get desired input
 
