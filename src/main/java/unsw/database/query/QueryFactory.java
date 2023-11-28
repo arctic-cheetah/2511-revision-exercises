@@ -29,7 +29,7 @@ public class QueryFactory {
             root = (BooleanOperator) qs.get(half);
 
         } else {
-            // The centre root is a comparison node. Find the next node that is AndOperator
+            // The centre root is a comparison node. Find the next node that is boolean operator
             // and take it from there
             half--;
             root = (BooleanOperator) qs.get(half);
@@ -70,16 +70,12 @@ public class QueryFactory {
                 // Reset pointers
                 prev = "";
                 next = "";
-                // BUG HERE
-                continue;
 
             } else {
                 // It's a value!
                 prev = s;
             }
-
         }
-
         return queries;
     }
 
