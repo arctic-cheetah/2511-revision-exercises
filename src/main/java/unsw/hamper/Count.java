@@ -2,51 +2,57 @@ package unsw.hamper;
 
 /**
  * The number of times an element occurs in the containing Hamper.
+ * 
  * @author Matthew Perry
  *
  * @param <E> The generic element for which this is an occurrence count.
  */
 public class Count<E> {
-    
+
     private E e;
-    
+
     private int count;
-    
+
     /**
      * Create a Count with the given element and initial count
+     * 
      * @param e
      */
     public Count(E e, int count) {
         this.e = e;
-        this.count= count;
+        this.count = count;
     }
-    
+
     /**
      * Get the element
+     * 
      * @return
      */
     public E getElement() {
         return e;
     }
-    
+
     /**
      * Get the count
+     * 
      * @return
      */
     public int getCount() {
         return count;
     }
-    
+
     /**
      * Increment the count by the given amount
+     * 
      * @param n
      */
     public void incrementCount(int n) {
         count += n;
     }
-    
+
     /**
      * Decrement the count by the given amount
+     * 
      * @param n
      */
     public void decrementCount(int n) {
@@ -54,7 +60,24 @@ public class Count<E> {
     }
 
     @Override
-    public String toString(){
-        return "Count: "+e.toString()+" appears "+count+" times";
+    public String toString() {
+        return "Count: " + e.toString() + " appears " + count + " times";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Count<E> other = (Count<E>) o;
+        // Is the item type and count the same??
+        return other.count == this.count && this.e == other.e;
     }
 }

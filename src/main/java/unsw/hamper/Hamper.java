@@ -64,7 +64,7 @@ public interface Hamper<E> extends Iterable<Count<E>> {
 	 * in the resultant hamper.
 	 * @param hamper
 	 * @return result
-	 * @postcondition for all e, result.count(e) = count(e) + hamper.count(e)
+	 * @postcondition for all e, result.count(e) = count(e) + hamper.count(e). Returns a new hamper
 	 */
 	public Hamper<E> sum(Hamper<? extends E> hamper);
 

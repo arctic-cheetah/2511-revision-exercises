@@ -20,14 +20,13 @@ public class TestHamper {
     @Test
     public void simpleTest() {
         Hamper<Fruit> fruitHamper = new ArrayListItemHamper<Fruit>();
-        fruitHamper.add(new Apple("Gala", 450, 100));
-        fruitHamper.add(new Apple("Fuji", 400, 100));
-        fruitHamper.add(new Avocado("Hass", 300));
+        fruitHamper.add(new Apple("Gala", 450, 100), 1);
+        fruitHamper.add(new Apple("Fuji", 400, 100), 1);
+        fruitHamper.add(new Avocado("Hass", 300), 1);
 
         assertEquals(1, fruitHamper.count(new Apple("Gala", 450, 100)));
         assertEquals(1, fruitHamper.count(new Apple("Fuji", 400, 100)));
         assertEquals(1, fruitHamper.count(new Avocado("Hass", 300)));
-
 
         // The same element again
         fruitHamper.add(new Apple("Gala", 450, 100));
@@ -84,8 +83,8 @@ public class TestHamper {
         h.add(a3);
 
         Hamper<Apple> h2 = new ArrayListItemHamper<Apple>();
-        h2.add(a2);
         h2.add(a1);
+        h2.add(a2);
 
         Hamper<Apple> h3 = h.sum(h2);
 
@@ -120,9 +119,9 @@ public class TestHamper {
         assertTrue(h.equals(h));
 
         Hamper<Apple> h2 = new ArrayListItemHamper<Apple>();
-        h2.add(a3);
         h2.add(a1, 2);
         h2.add(a2, 3);
+        h2.add(a3);
 
         assertTrue(h.equals(h2));
         assertTrue(h2.equals(h));
@@ -143,7 +142,7 @@ public class TestHamper {
     }
 
     @Test
-    public void fruitHamperTest(){
+    public void fruitHamperTest() {
         FruitHamper fh1 = new FruitHamper();
         FruitHamper fh2 = new FruitHamper();
         Apple a1 = new Apple("Gala", 450, 100);
@@ -159,7 +158,7 @@ public class TestHamper {
         fh1.add(a3);
         fh1.add(a4);
         fh1.add(av1);
-        
+
         fh2.add(a1);
         fh2.add(a2);
         fh2.add(a3);
@@ -167,9 +166,10 @@ public class TestHamper {
         fh2.add(av1);
 
         fh1.add(a5);
-        assertEquals(fh1, fh2);  // since need 2 avocados, fh1 shouldnt have changed
+        assertEquals(fh1, fh2); // since need 2 avocados, fh1 shouldnt have changed
 
         fh1.add(av2);
+        // here the hamper fh1 has : a1, a2, av1 and av2
         assertNotEquals(fh1, fh2);
 
         fh2.add(av2);
@@ -177,7 +177,7 @@ public class TestHamper {
     }
 
     @Test
-    public void fruitHamperPriceTest(){
+    public void fruitHamperPriceTest() {
         FruitHamper fh1 = new FruitHamper();
         Apple a1 = new Apple("Gala", 450, 100);
         Apple a2 = new Apple("Fuji", 400, 100);

@@ -32,7 +32,7 @@ public class ArrayListItemHamper<E extends Item> implements Hamper<E> {
 
     @Override
     public void add(E e) {
-        add(e,1);
+        add(e, 1);
     }
 
     @Override
@@ -52,7 +52,20 @@ public class ArrayListItemHamper<E extends Item> implements Hamper<E> {
 
     @Override
     public void remove(E e, int n) {
-        // TODO implement this
+        // Check
+        // Is the element present?
+        Count<E> c = getCount(e);
+        if (c == null) {
+            return;
+        }
+        int numElements = c.getCount();
+
+        // Do we have enough elements to remove?
+        if (numElements <= n) {
+            counts.remove(c);
+        } else {
+            c.decrementCount(n);
+        }
     }
 
     @Override
@@ -65,14 +78,20 @@ public class ArrayListItemHamper<E extends Item> implements Hamper<E> {
 
     @Override
     public int size() {
-        // TODO implement this
-        return 0;
+        return counts.stream().map(e -> e.getCount()).reduce(Integer::sum).orElse(0);
     }
 
     @Override
     public Hamper<E> sum(Hamper<? extends E> hamper) {
-        // TODO implement this
-        return null;
+        Hamper<E> h = new ArrayListItemHamper<>();
+
+        this.counts.forEach((Count<E> e) -> {
+            int target = hamper.count(e.getElement());
+            int source = e.getCount();
+            h.add(e.getElement(), source + target);
+        });
+
+        return h;
     }
 
     @Override
@@ -81,29 +100,82 @@ public class ArrayListItemHamper<E extends Item> implements Hamper<E> {
     }
 
     /**
-     * For this method, hampers should be the same class to be equal (ignore the generic type component). For example, a CreativeHamper cannot be equal to a FruitHamper,
+     * For this method, hampers should be the same class to be equal (ignore the
+     * generic type component). For example, a CreativeHamper cannot be equal to a
+     * FruitHamper,
      * And a FruitHamper cannot be equal to an ArrayListItemHamper<Fruit>,
-     * However an ArrayListItemHamper<Fruit> can be equal to a ArrayListItemHamper<Item> if they both only contain fruit.
+     * However an ArrayListItemHamper<Fruit> can be equal to a
+     * ArrayListItemHamper<Item> if they both only contain fruit.
      * HINT: use getclass() to compare objects.
      */
     @Override
     public boolean equals(Object o) {
-        // TODO implement this
-        return false;
+
+        if (o == this) {
+            return true;
+        }
+        if (o == null) {
+            return false;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+
+        // So they are an ArrayListItemHamper huh!
+        ArrayListItemHamper<E> other = (ArrayListItemHamper<E>) o;
+        // TODO:
+        // Check item types!
+        if (other.counts.get(0).getClass() != this.counts.get(0).getClass()) {
+            return false;
+        }
+        // Check that all the items are the same
+        // BUG only checks for thisCount!!!! Need to check the opposite way!
+
+        // Check both ways
+        for (Count<E> thisCount : counts) {
+            Count<E> otherCount = other.getCount(thisCount.getElement());
+            if (!thisCount.equals(otherCount)) {
+                return false;
+            }
+        }
+
+        for (Count<E> otherCount : other.counts) {
+            Count<E> thisCount = this.getCount(otherCount.getElement());
+            if (!otherCount.equals(thisCount)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
-	 * 
-	 * @return price of the hamper - for ArrayListItemHamper, this should be the sum of the prices of items with each price multiplied by the number of times that item occurs
-	 */
-	@Override
+     * 
+     * @return price of the hamper - for ArrayListItemHamper, this should be the sum
+     *         of the prices of items with each price multiplied by the number of
+     *         times that item occurs
+     */
+    @Override
     public int getPrice() {
         // TODO implement this
         return 0;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return counts.toString();
     }
+
+    public ArrayList<Count<E>> getCounts() {
+        return counts;
+    }
+
+    public <T extends Item> int getClassCount(Class<T> c) {
+        int res = counts.stream()
+                .filter(e -> e.getElement().getClass() == c)
+                .map(e -> e.getCount())
+                .reduce(Integer::sum).orElse(0);
+        return res;
+    }
+
 }
