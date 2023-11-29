@@ -7,9 +7,10 @@ import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 import org.junit.jupiter.api.Test;
 
+import unsw.set.ArrayListSet;
+import unsw.set.Set;
 import unsw.set.fruit.Apple;
 import unsw.set.fruit.Fruit;
 import unsw.set.fruit.Orange;
@@ -21,7 +22,7 @@ import unsw.set.fruit.Orange;
  */
 class ArrayListSetTest {
 
-    /*@Test
+    @Test
     public void testSimpleIntegration() {
         Set<String> set = new ArrayListSet<String>();
         set.add("Hello");
@@ -45,7 +46,7 @@ class ArrayListSetTest {
         set.add("World");
 
         Iterator<String> iter = set.iterator();
-        
+
         for (int i = 0; i < 2; i++) {
             iter.next();
         }
@@ -76,7 +77,7 @@ class ArrayListSetTest {
         fruit1.add(new Apple("Fuji"));
         fruit1.add(new Apple("Gala"));
         fruit1.add(new Orange("Navel"));
-        
+
         Set<Fruit> fruit2 = new ArrayListSet<Fruit>();
         fruit2.add(new Apple("Gala"));
         fruit2.add(new Apple("Fuji"));
@@ -96,16 +97,17 @@ class ArrayListSetTest {
         fruit2.add(new Orange("Blood Orange"));
         fruit2.add(new Apple("Granny Smith"));
 
-        Set<Fruit> intersectSet = fruit1.intersection(fruit2);
-        assertTrue(intersectSet.contains(new Apple("Granny Smith")));
-        assertEquals(1, intersectSet.size());
-        assertEquals(fruit1.intersection(fruit2), fruit2.intersection(fruit1));
-
         Set<Fruit> unionSet = fruit1.union(fruit2);
         assertTrue(unionSet.contains(new Apple("Pink Lady")));
         assertTrue(unionSet.contains(new Apple("Granny Smith")));
         assertTrue(unionSet.contains(new Orange("Blood Orange")));
         assertEquals(3, unionSet.size());
         assertEquals(fruit1.union(fruit2), fruit2.union(fruit1));
-    }*/
+
+        Set<Fruit> intersectSet = fruit1.intersection(fruit2);
+        assertTrue(intersectSet.contains(new Apple("Granny Smith")));
+        assertEquals(1, intersectSet.size());
+        assertEquals(fruit1.intersection(fruit2), fruit2.intersection(fruit1));
+
+    }
 }
