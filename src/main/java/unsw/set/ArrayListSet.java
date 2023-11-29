@@ -124,7 +124,6 @@ public class ArrayListSet<E> implements Set<E> {
             return false;
         }
         Set<E> other = (Set<E>) o;
-
         for (E e : data) {
             if (!other.contains(e)) {
                 return false;
