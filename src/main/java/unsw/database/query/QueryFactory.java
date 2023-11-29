@@ -29,7 +29,8 @@ public class QueryFactory {
             root = (BooleanOperator) qs.get(half);
 
         } else {
-            // The centre root is a comparison node. Find the next node that is boolean operator
+            // The centre root is a comparison node. Find the next node that is boolean
+            // operator
             // and take it from there
             half--;
             root = (BooleanOperator) qs.get(half);
@@ -38,7 +39,6 @@ public class QueryFactory {
         Query right = queryFactoryRecursion(qs.subList(half + 1, qs.size()));
         root.setLeft(left);
         root.setRight(right);
-
         return root;
     }
 

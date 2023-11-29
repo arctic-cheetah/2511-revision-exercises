@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import unsw.friends.WasteBookController;
 
 public class WasteBookTestBaseline {
-    
+
     @Test
     public void testBasic() {
         WasteBookController<String> controller = new WasteBookController<String>();
@@ -35,8 +35,6 @@ public class WasteBookTestBaseline {
         assertEquals(0, controller.getFriends("Evanlyn"));
         assertEquals(1, controller.getFriends("Hamish"));
         assertEquals(1, controller.getFriends("Amelia"));
-
-        
 
     }
 
@@ -66,7 +64,7 @@ public class WasteBookTestBaseline {
     }
 
     @Test
-    public void testIteratorFriends() { 
+    public void testIteratorFriends() {
         WasteBookController<String> controller = new WasteBookController<String>();
 
         controller.addPersonToNetwork("Nathan");

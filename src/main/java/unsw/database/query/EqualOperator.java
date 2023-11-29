@@ -11,4 +11,5 @@ public class EqualOperator extends ComparisonOperator {
         setFunc((col, val) -> db.querySimpleToRow(col, val));
         setOperatorName("=");
     }
+
 }
